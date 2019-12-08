@@ -3,6 +3,7 @@ import { Link, withRouter } from 'react-router-dom';
 import { Button, Container, Form, FormGroup, Label } from 'reactstrap';
 import AppNavbar from './AppNavbar';
 import ViaCep from 'react-via-cep';
+import Numero from './Numero';
 
 class EditarCliente extends Component {
 
@@ -23,7 +24,8 @@ class EditarCliente extends Component {
         super(props);
         this.state = {
             item: this.emptyItem,
-            errors: {}
+            errors: {},
+            showNumero: false
         };
 
         this.handleChangeCep = this.handleChangeCep.bind(this);
@@ -183,6 +185,12 @@ class EditarCliente extends Component {
         }
     }
 
+    _showNumero = (bool) => {
+        this.setState({
+            showNumero: bool
+        });
+    }
+
     render() {
         const {item} = this.state;
         const title = <h2>{item.id ? 'Editar Cliente' : 'Adicionar Cliente'}</h2>;
@@ -290,6 +298,10 @@ class EditarCliente extends Component {
                             <input type="text" maxLength='15' pattern={/^(\(?\d{2}\)?\s)?(\d{4,5}\-\d{4})$/i.test(item.numero)} name="numero" id="numero" value={item.numero || ''}
                                    onChange={this.handleChange.bind(this, "numero")} autoComplete="numero"/>
                             <span style={{color: "red"}}>{this.state.errors["numero"]}</span>
+                            <div>
+                                <input type="button" value="+" onClick={this._showNumero.bind(null, true)} />
+                                { this.state.showNumero ? <Numero /> : null }
+                            </div>
                         </FormGroup>
                     </div>
                     <FormGroup>
