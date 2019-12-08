@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import AppNavbar from './AppNavbar';
-import {Redirect} from 'react-router-dom';
-import { Button, Container } from 'reactstrap';
+import { Container } from 'reactstrap';
 
 class Home extends Component {
 
