@@ -8491,6 +8491,13 @@ react-lifecycles-compat@^3.0.4:
   resolved "https://registry.yarnpkg.com/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz#4f1a273afdfc8f3488a8c516bfda78f872352362"
   integrity sha512-fBASbA6LnOU9dOU2eW7aQ8xmYBSXUIWr+UmF9b1efZBazGNO+rcXT/icdKnYm2pTwcRylVUYwW7H1PHfLekVzA==
 
+react-panelgroup@^1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/react-panelgroup/-/react-panelgroup-1.0.10.tgz#53d2d8279a89dca0dabcf58ad5c4240e21b17486"
+  integrity sha512-0Atbm0sgknwbu+qlVgWpWxbr6zZn66fhNCpuDYYijBhLg9KByF1Me1OoyEGCFig9Yf5sSnCS6nXdZ7tvnypO/A==
+  dependencies:
+    prop-types "^15.6.1"
+
 react-popper@^0.10.4:
   version "0.10.4"
   resolved "https://registry.yarnpkg.com/react-popper/-/react-popper-0.10.4.tgz#af2a415ea22291edd504678d7afda8a6ee3295aa"

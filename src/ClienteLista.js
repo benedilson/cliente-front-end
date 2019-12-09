@@ -40,7 +40,7 @@ class List extends Component {
         }
 
         const list = clientes.map(cliente => {
-            const address = `${cliente.cep || ''} ${cliente.logradouro || ''} ${cliente.bairro || ''} ${cliente.cidade || ''} 
+            const address = `${cliente.cpf || ''} ${cliente.cep || ''} ${cliente.logradouro || ''} ${cliente.bairro || ''} ${cliente.cidade || ''} 
             ${cliente.uf || ''} ${cliente.complemento || ''} ${cliente.numero || ''} ${cliente.email || ''}`;
             return <tr key={cliente.id}>
                 <td style={{whiteSpace: 'nowrap'}}>{cliente.nome}</td>
@@ -58,9 +58,6 @@ class List extends Component {
             <div>
                 <AppNavbar/>
                 <Container fluid>
-                    <div className="float-right">
-                        <Button color="blue" tag={Link} to="/">logout</Button>
-                    </div>
                     <div className="float-right">
                         <Button color="success" tag={Link} to="/api/cliente/new">Adicionar Cliente</Button>
                     </div>

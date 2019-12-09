@@ -1,9 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { Button, Container, Form, FormGroup, Label } from 'reactstrap';
 import AppNavbar from './AppNavbar';
 import ViaCep from 'react-via-cep';
-import Numero from './Numero';
 
 class EditarCliente extends Component {
 
@@ -25,14 +24,44 @@ class EditarCliente extends Component {
         this.state = {
             item: this.emptyItem,
             errors: {},
-            showNumero: false
+            contatos: [],
+            emails: []
         };
 
         this.handleChangeCep = this.handleChangeCep.bind(this);
         this.handleSuccess = this.handleSuccess.bind(this);
 
-        //this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    newContato = () => {
+        let contatos = this.state.contatos;
+        contatos.push({ fone: '', tipo: '' });
+        this.setState({ contatos: contatos });
+    }
+
+    editTipo = (i, e) =>  {
+        let contatos = this.state.contatos;
+        contatos[i].tipo = e.target.value;
+        this.setState({ contatos: contatos });
+    }
+
+    editFone = (i, e) =>  {
+        let contatos = this.state.contatos;
+        contatos[i].fone = e.target.value;
+        this.setState({ contatos: contatos });
+    }
+
+    newEmail = () => {
+        let emails = this.state.emails;
+        emails.push({ enderecoEmail: '' });
+        this.setState({ emails: emails });
+    }
+
+    editEmail = (i, e) =>  {
+        let emails = this.state.emails;
+        emails[i].enderecoEmail = e.target.value;
+        this.setState({ emails: emails });
     }
 
     handleValidation(){
@@ -40,7 +69,6 @@ class EditarCliente extends Component {
         let errors = {};
         let formIsValid = true;
 
-        //Name
         if(!fields["nome"]){
             formIsValid = false;
             errors["nome"] = "Por favor digite seu nome aqui";
@@ -50,7 +78,7 @@ class EditarCliente extends Component {
             if(!fields["nome"].match(/^[A-Za-z0-9áàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ ]+$/)){
                 formIsValid = false;
                 errors["nome"] = "O nome fornecido é inválido";
-            } else if(fields["nome"].length < 3) {
+            } else if(fields["nome"].length < 4) {
                 formIsValid = false;
                 errors["nome"] = "O nome precisa ter mais que 3 caracteres";
             } else if(fields["nome"].length > 100) {
@@ -106,34 +134,33 @@ class EditarCliente extends Component {
             errors["uf"] = "Por favor digite seu uf aqui";
         }
 
-        if(!fields["numero"]){
+        if(!fields["contatos.fone"]){
             formIsValid = false;
-            errors["numero"] = "Por favor digite seu numero aqui";
+            errors["contatos.fone"] = "Por favor digite seu numero aqui";
         }
 
-        if(typeof fields["numero"] !== "undefined"){
-            if(!fields["numero"].match(/[(\(?\d{2}\)?\s)?(\d{4,5}\-\d{4})]/)){
+        if(typeof fields["contatos.fone"] !== "undefined"){
+            if(!fields["contatos.fone"].match(/[(\(?\d{2}\)?\s)?(\d{4,5}\-\d{4})]/)){
                 formIsValid = false;
-                errors["numero"] = "O numero fornecido é inválido";
-            } else if(fields["numero"].length > 15) {
+                errors["contatos.fone"] = "O numero fornecido é inválido";
+            } else if(fields["contatos.fone"].length > 15) {
                 formIsValid = false;
-                errors["numero"] = "O numero precisa ter no máximo 15 caracteres";
+                errors["contatos.fone"] = "O numero precisa ter no máximo 15 caracteres";
             }
         }
 
-        //Email
-        if(!fields["email"]){
+        if(!fields["email.enderecoEmail"]){
             formIsValid = false;
-            errors["email"] = "Não pode ser vazio";
+            errors["email.enderecoEmail"] = "Não pode ser vazio";
         }
 
-        if(typeof fields["email"] !== "undefined"){
-            let lastAtPos = fields["email"].lastIndexOf('@');
-            let lastDotPos = fields["email"].lastIndexOf('.');
+        if(typeof fields["email.enderecoEmail"] !== "undefined"){
+            let lastAtPos = fields["email.enderecoEmail"].lastIndexOf('@');
+            let lastDotPos = fields["email.enderecoEmail"].lastIndexOf('.');
 
-            if (!(lastAtPos < lastDotPos && lastAtPos > 0 && fields["email"].indexOf('@@') == -1 && lastDotPos > 2 && (fields["email"].length - lastDotPos) > 2)) {
+            if (!(lastAtPos < lastDotPos && lastAtPos > 0 && fields["email.enderecoEmail"].indexOf('@@') == -1 && lastDotPos > 2 && (fields["email.enderecoEmail"].length - lastDotPos) > 2)) {
                 formIsValid = false;
-                errors["email"] = "Email não é valido";
+                errors["email.enderecoEmail"] = "Email não é valido";
             }
         }
 
@@ -165,33 +192,44 @@ class EditarCliente extends Component {
         event.preventDefault();
         const {item} = this.state;
 
-        const teste = await fetch('/api/cliente', {
-            method: (item.id) ? 'PUT' : 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(item),
-        });
+        for(let cont = 0; cont < this.state.contatos.length; cont++) {
+            item.numero = " " + item.numero + " " + this.state.contatos[cont].fone + " " + this.state.contatos[cont].tipo + " ";
+        }
 
-        const testando = await teste.json();
-        console.log(testando);
+        for(let cont = 0; cont < this.state.emails.length; cont++) {
+            item.email = item.email + this.state.emails[cont].enderecoEmail + " ";
+        }
 
         if(this.handleValidation()){
+
+            const teste = await fetch('/api/cliente', {
+                method: (item.id) ? 'PUT' : 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(item),
+            });
+
+            const testando = await teste.json();
+            console.log(testando);
+
             alert("Formulario enviado");
+
             this.props.history.push('/clientes');
         }else{
             alert("Formulario tem erros.")
         }
     }
 
-    _showNumero = (bool) => {
-        this.setState({
-            showNumero: bool
-        });
-    }
-
     render() {
+
+        const list = [
+            {id: 'Celular', name: 'Celular'},
+            {id: 'Residencial', name: 'Residencial'},
+            {id: 'Comercial', name: 'Comercial'}
+        ];
+
         const {item} = this.state;
         const title = <h2>{item.id ? 'Editar Cliente' : 'Adicionar Cliente'}</h2>;
 
@@ -199,19 +237,20 @@ class EditarCliente extends Component {
             <AppNavbar/>
             <Container>
                 {title}
-                <Form onSubmit={this.handleSubmit}>
-                    <FormGroup className="col-md-4 mb-3">
+                <Form  className="form col-md-6" onSubmit={this.handleSubmit}>
+                    <div className="form-group">
                         <Label for="nome">Nome</Label>
-                        <input type="text" size='100' maxLength='100' minLength='3' name="nome" id="nome" value={item.nome || ''}
+                        <input type="text" size='100' maxLength='100' minLength='3' name="nome" id="nome" defaultValue={item.nome || ''}
                                onChange={this.handleChange.bind(this, "nome")} autoComplete="nome"/>
                         <span style={{color: "red"}}>{this.state.errors["nome"]}</span>
-                    </FormGroup>
-                    <FormGroup className="col-md-4 mb-3">
+                    </div>
+                    <div className="form-group">
                         <Label for="cpf">CPF</Label>
-                        <input type="text" name="cpf" size='14' maxLength='14' id="cpf" placeholder="000.000.000-00" value={item.cpf || ''}
+                        <input type="text" name="cpf" size='14' maxLength='14' id="cpf" placeholder="000.000.000-00" defaultValue={item.cpf || ''}
                                onChange={this.handleChange.bind(this, "cpf")} autoComplete="cpf"/>
                         <span style={{color: "red"}}>{this.state.errors["cpf"]}</span>
-                    </FormGroup>
+                    </div>
+                    <div className="form-group">
                     <ViaCep cep={this.state.cep} onSuccess={this.handleSuccess} lazy>
                         { ({ data, loading, error, fetch }) => {
                             if (loading) {
@@ -232,8 +271,8 @@ class EditarCliente extends Component {
                                 return <div>
                                     <div className="row">
                                         <FormGroup className="col-md-4 mb-3">
-                                            <Label for="cep">CEP</Label>
-                                            <input type="text" size="9" maxLength='9' name="cep" placeholder="00000-000" value={item.cep || ''}
+                                            <Label>CEP</Label>
+                                            <input type="text" size="9" maxLength='9' name="cep" placeholder="00000-000" defaultValue={item.cep || ''}
                                                    onChange={this.handleChange.bind(this, "cep")} autoComplete="cep"/>
                                             <span style={{color: "red"}}>{this.state.errors["cep"]}</span>
                                         </FormGroup>
@@ -242,13 +281,13 @@ class EditarCliente extends Component {
                                             <input type="text"
                                                    name="logradouro"
                                                    id="logradouro"
-                                                   value={item.logradouro || ''}
+                                                   defaultValue={item.logradouro || ''}
                                                    onChange={this.handleChange.bind(this, "logradouro")} autoComplete="logradouro"/>
                                             <span style={{color: "red"}}>{this.state.errors["logradouro"]}</span>
                                         </FormGroup>
                                         <FormGroup className="col-md-4 mb-3">
                                             <Label for="bairro">Bairro</Label>
-                                            <input type="text" name="bairro" id="bairro" value={item.bairro || ''}
+                                            <input type="text" name="bairro" id="bairro" defaultValue={item.bairro || ''}
                                                    onChange={this.handleChange.bind(this, "bairro")} autoComplete="bairro"/>
                                             <span style={{color: "red"}}>{this.state.errors["bairro"]}</span>
                                         </FormGroup>
@@ -256,19 +295,19 @@ class EditarCliente extends Component {
                                     <div className="row">
                                         <FormGroup className="col-md-4 mb-3">
                                             <Label for="cidade">Cidade</Label>
-                                            <input type="text" name="cidade" id="cidade" value={item.cidade || ''}
+                                            <input type="text" name="cidade" id="cidade" defaultValue={item.cidade || ''}
                                                    onChange={this.handleChange.bind(this, "cidade")} autoComplete="cidade"/>
                                             <span style={{color: "red"}}>{this.state.errors["cidade"]}</span>
                                         </FormGroup>
                                         <FormGroup className="col-md-4 mb-3">
                                             <Label for="uf">UF</Label>
-                                            <input type="text" name="uf" id="uf" maxLength='2' value={item.uf || ''}
+                                            <input type="text" name="uf" id="uf" maxLength='2' defaultValue={item.uf || ''}
                                                    onChange={this.handleChange.bind(this, "uf")} autoComplete="uf"/>
                                             <span style={{color: "red"}}>{this.state.errors["uf"]}</span>
                                         </FormGroup>
                                         <FormGroup className="col-md-4 mb-3">
                                             <Label for="complemento">Complemento</Label>
-                                            <input type="text" name="complemento" id="complemento" value={item.complemento || ''}
+                                            <input type="text" name="complemento" id="complemento" defaultValue={item.complemento || ''}
                                                    onChange={this.handleChange.bind(this, "complemento")} autoComplete="complemento"/>
                                         </FormGroup>
                                     </div>
@@ -283,7 +322,7 @@ class EditarCliente extends Component {
                                            maxLength='9'
                                            name="cep"
                                            onChange={this.handleChangeCep}
-                                           value={this.state.cep}
+                                           defaultValue={this.state.cep}
                                            placeholder="00000-000"
                                            autoComplete="cep" type="text"/>
                                     <button onClick={fetch}>Pesquisar</button>
@@ -292,24 +331,44 @@ class EditarCliente extends Component {
                             </div>
                         }}
                     </ViaCep>
-                    <div className="row">
-                        <FormGroup className="col-md-4 mb-3">
-                            <Label for="numero">Número</Label>
-                            <input type="text" maxLength='15' pattern={/^(\(?\d{2}\)?\s)?(\d{4,5}\-\d{4})$/i.test(item.numero)} name="numero" id="numero" value={item.numero || ''}
-                                   onChange={this.handleChange.bind(this, "numero")} autoComplete="numero"/>
-                            <span style={{color: "red"}}>{this.state.errors["numero"]}</span>
-                            <div>
-                                <input type="button" value="+" onClick={this._showNumero.bind(null, true)} />
-                                { this.state.showNumero ? <Numero /> : null }
-                            </div>
-                        </FormGroup>
                     </div>
-                    <FormGroup>
-                        <Label for="email">E-mail</Label>
-                        <input type="text" name="email" id="email" value={item.email || ''}
-                               onChange={this.handleChange.bind(this, "email")} autoComplete="email"/>
-                        <span style={{color: "red"}}>{this.state.errors["email"]}</span>
-                    </FormGroup>
+                    <div className="form-group">
+                        {this.state.contatos.map((c, i) =>
+                            <div key={i}>
+                                <p>
+                                    <label>#{i} - Fone</label>
+                                    <input type="text"
+                                           maxLength='15'
+                                           defaultValue={c.fone}
+                                           onBlur={this.handleChange.bind(this, "contatos.fone")}
+                                           onChange={e => this.editFone(i, e)} />
+                                    <span style={{color: "red"}}>{this.state.errors["contatos.fone"]}</span>
+                                </p>
+                                <p>
+                                    <label>#{i} - Tipo</label>
+                                    <select defaultValue={c.tipo} onChange={e => this.editTipo(i, e)} onBlur={this.handleChange.bind(this, "contatos.tipo")}>
+                                        {list.map((itemSelecionado, index) => (
+                                            <option defaultValue={itemSelecionado.id}>{itemSelecionado.name}</option>
+                                        ))}
+                                    </select>
+                                </p>
+                            </div>
+                        )}
+                        <button type='button' onClick={this.newContato}>Add Contato</button>
+                    </div>
+                    <div className="form-group">
+                        {this.state.emails.map((c, i) =>
+                            <div key={i}>
+                                    <label>#{i} - E-mail</label>
+                                    <input type="text"
+                                           defaultValue={c.enderecoEmail}
+                                           onBlur={this.handleChange.bind(this, "email.enderecoEmail")}
+                                           onChange={e => this.editEmail(i, e)} />
+                                    <span style={{color: "red"}}>{this.state.errors["email.enderecoEmail"]}</span>
+                            </div>
+                        )}
+                        <button type='button' onClick={this.newEmail}>Add E-mail</button>
+                    </div>
                     <FormGroup>
                         <Button color="primary" type="submit">Salvar</Button>{' '}
                         <Button color="secondary" tag={Link} to="/clientes">Cancelar</Button>
